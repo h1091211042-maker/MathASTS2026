@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesmen Sumatif Tengah Semester Matematika CBT System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        anbk: {
+                            blue: '#00529B',
+                            light: '#F0F4F8',
+                            dark: '#1E293B',
+                            accent: '#FFB800',
+                            danger: '#E11D48',
+                            success: '#10B981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SheetJS (xlsx) for exporting Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- MathJax 3 CDN Configuration & Script for LaTeX Equation Rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        console.log('MathJax initial page rendering complete.');
+                    });
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .mjx-chtml {
+            outline: none !important;
+            font-size: 105% !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 flex flex-col justify-between tex2jax_process">
+
+    <!-- TOP HEADER / BRANDING BAR -->
+    <header class="bg-anbk-blue text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2 rounded-lg text-anbk-blue font-bold text-xl shadow">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm md:text-base tracking-wide leading-none uppercase">ASESMEN SUMATIF TENGAH SEMESTER MATEMATIKA CBT SYSTEM</h1>
+                    <p class="text-xs text-blue-200 mt-1">Muhammad Yahya Ayyash, S.Stat.</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleTeacherAccess()" class="bg-blue-800 hover:bg-blue-900 text-xs md:text-sm px-3 py-1.5 rounded text-white flex items-center gap-2 border border-blue-600 transition">
+                    <i class="fa-solid fa-user-shield"></i> <span class="hidden md:inline">Mode Guru</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-grow">
+
+        <!-- 1. HALAMAN HOME / LOGIN -->
+        <div id="page-home" class="max-w-md mx-auto bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="bg-anbk-blue p-6 text-white text-center">
+                <i class="fa-solid fa-file-pen text-4xl mb-2 text-anbk-accent"></i>
+                <h2 class="text-xl font-bold">Konfirmasi Data Peserta</h2>
+                <p class="text-xs text-blue-100 mt-1">Isi identitas diri Anda dengan benar sebelum memulai ujian.</p>
+            </div>
+            <form id="form-login" onsubmit="startExam(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Lengkap Siswa</label>
+                    <input type="text" id="input-nama" required placeholder="Contoh: Ahmad Rizky" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-anbk-blue outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kelas</label>
+                    <input type="text" id="input-kelas" required placeholder="Contoh: XII MIPA 1 atau XII A" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-anbk-blue outline-none transition">
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg text-xs text-blue-800 space-y-1">
+                    <p class="font-bold"><i class="fa-solid fa-circle-info mr-1"></i> Ketentuan Ujian:</p>
+                    <ul class="list-disc list-inside space-y-0.5 text-blue-700">
+                        <li>Pengampu: <strong>Muhammad Yahya Ayyash, S.Stat.</strong></li>
+                        <li>Durasi pengerjaan: <strong>60 Menit</strong></li>
+                        <li>Total Soal: <strong>30 Soal</strong> (15 Reguler, 15 HOTS)</li>
+                        <li>Rentang Nilai: <strong>0 - 100</strong></li>
+                        <li>Dilarang berpindah tab/layar saat ujian berlangsung!</li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="w-full bg-anbk-blue hover:bg-blue-800 text-white font-bold py-2.5 rounded-lg text-sm shadow-md transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> Mulai Ujian Sekarang
+                </button>
+            </form>
+        </div>
+
+        <!-- 2. HALAMAN UJIAN -->
+        <div id="page-exam" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- SIDEBAR NAVIGASI SOAL -->
+            <div class="lg:col-span-1 bg-white p-4 rounded-xl shadow-md border border-gray-200 h-fit">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                    <h3 class="font-bold text-sm text-gray-700"><i class="fa-solid fa-th-large mr-2"></i>Navigasi Soal</h3>
+                    <span id="answered-count" class="text-xs bg-blue-100 text-anbk-blue px-2 py-0.5 rounded-full font-bold">0 / 30</span>
+                </div>
+                
+                <div id="question-nav-grid" class="grid grid-cols-5 gap-2 max-h-80 overflow-y-auto p-1 hide-scrollbar"></div>
+
+                <div class="mt-4 pt-3 border-t text-xs space-y-1.5 text-gray-600">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span>
+                        <span>Sudah Dijawab</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded bg-amber-400 inline-block"></span>
+                        <span>Ragu-Ragu</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded bg-gray-200 border inline-block"></span>
+                        <span>Belum Dijawab</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AREA UTAMA SOAL -->
+            <div class="lg:col-span-3 space-y-4">
+                <div class="bg-white p-4 rounded-xl shadow-md border border-gray-200 flex flex-wrap justify-between items-center gap-3">
+                    <div>
+                        <span id="exam-user-info" class="font-bold text-gray-800 text-sm">Ahmad Rizky (XII MIPA 1)</span>
+                        <div class="text-xs text-gray-500" id="exam-difficulty-tag">Tingkat Kesulitan: <span class="font-semibold text-blue-600">REGULER</span></div>
+                    </div>
+                    <div class="flex items-center bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg text-red-600 font-bold text-sm space-x-2">
+                        <i class="fa-solid fa-clock animate-pulse"></i>
+                        <span>Sisa Waktu:</span>
+                        <span id="timer-display" class="font-mono text-base">60:00</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 min-h-[380px] flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3 pb-2 border-b">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider" id="question-number-title">Soal Nomor 1</span>
+                            <span id="question-type-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">Pilihan Ganda</span>
+                        </div>
+
+                        <div id="question-text" class="text-gray-800 font-medium text-base mb-4 leading-relaxed overflow-x-auto py-2">
+                            Loading pertanyaan...
+                        </div>
+
+                        <div id="question-image-container" class="hidden mb-4">
+                            <img id="question-image" src="" alt="Gambar Soal" class="max-h-60 rounded border object-contain bg-gray-50 p-1">
+                        </div>
+
+                        <div id="options-container" class="space-y-2.5"></div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-between items-center gap-3 mt-6 pt-4 border-t">
+                        <button onclick="prevQuestion()" id="btn-prev" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2 disabled:opacity-50">
+                            <i class="fa-solid fa-arrow-left"></i> Sebelumnya
+                        </button>
+
+                        <label class="flex items-center gap-2 cursor-pointer bg-amber-50 border border-amber-300 px-3 py-2 rounded-lg text-amber-800 text-xs font-bold hover:bg-amber-100 transition">
+                            <input type="checkbox" id="chk-doubt" onchange="toggleDoubt()" class="rounded text-amber-500 focus:ring-amber-400 w-4 h-4">
+                            <span><i class="fa-solid fa-flag"></i> Ragu - Ragu</span>
+                        </label>
+
+                        <button onclick="nextQuestion()" id="btn-next" class="bg-anbk-blue hover:bg-blue-800 text-white font-bold px-5 py-2 rounded-lg text-sm transition flex items-center gap-2">
+                            Berikutnya <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. HALAMAN HASIL & EVALUASI -->
+        <div id="page-result" class="hidden space-y-6 max-w-4xl mx-auto">
+            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-anbk-blue"></div>
+                <h2 class="text-xl font-bold text-gray-800">Hasil Asesmen Sumatif Tengah Semester</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Pengampu: Muhammad Yahya Ayyash, S.Stat.</p>
+                
+                <div class="my-6 flex justify-center items-center gap-8">
+                    <div class="text-center">
+                        <div class="text-5xl font-extrabold text-anbk-blue" id="res-score">0</div>
+                        <div class="text-xs text-gray-500 font-bold mt-1 uppercase tracking-wider">Nilai Akhir (Skala 0-100)</div>
+                    </div>
+                    <div class="h-14 w-px bg-gray-200"></div>
+                    <div class="text-left text-xs space-y-1 text-gray-600">
+                        <p>Nama: <span class="font-bold text-gray-800" id="res-nama">-</span></p>
+                        <p>Kelas: <span class="font-bold text-gray-800" id="res-kelas">-</span></p>
+                        <p>Total Soal Terjawab: <span class="font-bold text-gray-800" id="res-answered">-</span></p>
+                        <p>Status Cloud: <span class="font-bold text-emerald-600" id="res-cloud-status"><i class="fa-solid fa-spinner animate-spin"></i> Menyimpan ke Spreadsheet...</span></p>
+                    </div>
+                </div>
+
+                <div id="res-recommendation" class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-left text-xs text-blue-900 mb-4"></div>
+
+                <div class="flex justify-center gap-3">
+                    <button onclick="window.print()" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+                    </button>
+                    <button onclick="location.reload()" class="bg-anbk-blue hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Kembali ke Awal
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="font-bold text-base text-gray-800 mb-4 border-b pb-2"><i class="fa-solid fa-list-check mr-2"></i>Evaluasi Jawaban Detail</h3>
+                <div id="result-detail-container" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- 4. MODE GURU (PANEL ADMIN) -->
+        <div id="page-teacher" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <div class="flex justify-between items-center pb-4 border-b">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-chalkboard-user mr-2 text-anbk-blue"></i>Panel Kelola Guru</h2>
+                        <p class="text-xs text-gray-500">Muhammad Yahya Ayyash, S.Stat. - Pengelolaan Bank Soal & Nilai Terpusat</p>
+                    </div>
+                    <button onclick="exitTeacherMode()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-xs font-bold">
+                        <i class="fa-solid fa-right-from-bracket"></i> Keluar Mode Guru
+                    </button>
+                </div>
+
+                <div class="flex border-b mt-4">
+                    <button onclick="switchTeacherTab('tab-soal')" id="btn-tab-soal" class="py-2 px-4 border-b-2 font-bold text-xs border-anbk-blue text-anbk-blue">
+                        <i class="fa-solid fa-book-open mr-1"></i> Bank Soal (30)
+                    </button>
+                    <button onclick="switchTeacherTab('tab-rekap')" id="btn-tab-rekap" class="py-2 px-4 border-b-2 font-bold text-xs border-transparent text-gray-500 hover:text-gray-700">
+                        <i class="fa-solid fa-chart-simple mr-1"></i> Rekap Nilai Akhir Peserta (Cloud)
+                    </button>
+                </div>
+
+                <div id="tab-soal" class="pt-4 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500">Daftar soal lengkap beserta jawaban & penjelasan</span>
+                        <button onclick="openQuestionModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> Tambah Soal Baru
+                        </button>
+                    </div>
+
+                    <div id="teacher-questions-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+                </div>
+
+                <div id="tab-rekap" class="pt-4 space-y-4 hidden">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <h3 class="font-bold text-sm text-gray-800">Daftar Hasil Ujian Seluruh Siswa (Database Cloud)</h3>
+                        <div class="flex gap-2">
+                            <button onclick="fetchCloudResults()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-arrows-rotate"></i> Sync Server
+                            </button>
+                            <button onclick="downloadExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-file-excel"></i> Download Excel (.xlsx)
+                            </button>
+                            <button onclick="clearStudentResults()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-trash"></i> Bersihkan Lokal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border rounded-lg">
+                        <table class="w-full text-xs text-left text-gray-600" id="table-rekap-nilai">
+                            <thead class="bg-gray-100 text-gray-700 uppercase font-bold border-b">
+                                <tr>
+                                    <th class="px-4 py-3">No</th>
+                                    <th class="px-4 py-3">Waktu</th>
+                                    <th class="px-4 py-3">Nama Siswa</th>
+                                    <th class="px-4 py-3">Kelas</th>
+                                    <th class="px-4 py-3 text-center">Terjawab</th>
+                                    <th class="px-4 py-3 text-center">Benar / Salah</th>
+                                    <th class="px-4 py-3 text-center">Nilai (0-100)</th>
+                                    <th class="px-4 py-3 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-results-tbody" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ANTI CHEATING OVERLAY -->
+    <div id="cheat-overlay" class="fixed inset-0 bg-red-600/95 z-50 hidden flex flex-col items-center justify-center text-white p-6 text-center backdrop-blur-md">
+        <i class="fa-solid fa-triangle-exclamation text-6xl mb-4 animate-bounce"></i>
+        <h2 class="text-3xl font-extrabold tracking-wide mb-2">JANGAN PINDAH TAB!</h2>
+        <p class="text-sm max-w-md mb-4 text-red-100">
+            Sistem mendeteksi pelanggaran! Anda telah meninggalkan layar ujian.
+            Ujian akan dikirimkan secara otomatis jika Anda tidak segera kembali.
+        </p>
+        <div class="text-5xl font-mono font-bold my-2" id="cheat-timer">10</div>
+        <p class="text-xs mb-6 text-red-200">Pelanggaran Ke- <span id="violation-count" class="font-bold underline">1</span> Dari Maksimal 3 Kategori Pelanggaran</p>
+        <button onclick="dismissCheatOverlay()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-2.5 rounded-lg text-sm shadow-lg transition">
+            Saya Mengerti & Kembali ke Ujian
+        </button>
+    </div>
+
+    <!-- MODAL EDIT/TAMBAH SOAL -->
+    <div id="question-modal" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto space-y-4">
+            <h3 class="font-bold text-lg text-gray-800 border-b pb-2" id="modal-title">Edit / Tambah Soal</h3>
+            <form id="form-edit-question" onsubmit="saveQuestion(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="edit-q-id">
+                <div>
+                    <label class="font-bold text-gray-700">Isi Pertanyaan Soal (Gunakan $...$ untuk inline LaTeX & $$...$$ untuk Display Equation)</label>
+                    <textarea id="edit-q-content" required rows="3" class="w-full border rounded p-2 mt-1 focus:ring-1 focus:ring-anbk-blue outline-none font-mono"></textarea>
+                </div>
+                <div>
+                    <label class="font-bold text-gray-700">URL Gambar (Opsional)</label>
+                    <input type="url" id="edit-q-image" placeholder="https://example.com/image.png" class="w-full border rounded p-2 mt-1 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-gray-700">Tipe Soal</label>
+                        <select id="edit-q-type" class="w-full border rounded p-2 mt-1 bg-white outline-none">
+                            <option value="Pilihan Ganda">Pilihan Ganda</option>
+                            <option value="Benar-Salah">Benar-Salah</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-bold text-gray-700">Tingkat Kesulitan</label>
+                        <select id="edit-q-difficulty" class="w-full border rounded p-2 mt-1 bg-white outline-none">
+                            <option value="REGULER">REGULER</option>
+                            <option value="HOTS">HOTS</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="space-y-2 pt-2 border-t">
+                    <label class="font-bold text-gray-700">Pilihan Jawaban (Dapat berisi LaTeX equation)</label>
+                    <input type="text" id="edit-q-opt-A" placeholder="Pilihan A" required class="w-full border rounded p-1.5 font-mono">
+                    <input type="text" id="edit-q-opt-B" placeholder="Pilihan B" required class="w-full border rounded p-1.5 font-mono">
+                    <input type="text" id="edit-q-opt-C" placeholder="Pilihan C" class="w-full border rounded p-1.5 font-mono">
+                    <input type="text" id="edit-q-opt-D" placeholder="Pilihan D" class="w-full border rounded p-1.5 font-mono">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-gray-700">Kunci Jawaban</label>
+                        <select id="edit-q-answer" class="w-full border rounded p-2 mt-1 bg-white outline-none">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="font-bold text-gray-700">Penjelasan / Pembahasan Soal (Mendukung LaTeX equation)</label>
+                    <textarea id="edit-q-explanation" rows="2" class="w-full border rounded p-2 mt-1 outline-none font-mono"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t">
+                    <button type="button" onclick="closeQuestionModal()" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-anbk-blue text-white font-bold rounded">Simpan Soal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gray-200 text-center py-3 text-xs text-gray-500">
+        &copy; 2026 Asesmen Sumatif Tengah Semester Matematika CBT System - Muhammad Yahya Ayyash, S.Stat.
+    </footer>
+
+    <!-- SCRIPT JAVASCRIPT LOGIC -->
+    <script>
+        // ==================== PASTE WEB APP URL GOOGLE SCRIPT DI SINI ====================
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzY36n0ZhWdxhkdBmS1KkdPuX_KPfCdeDTj-Lm3UBAEl3GkgETNYCl7KqIfdbUat7aFFg/exec"; // Ganti dengan URL Google Apps Script Anda
+
+        let questions = [
+            { 
+                id: 1, 
+                type: "Pilihan Ganda", 
+                content: "Persamaan lingkaran yang berpusat di titik $(0,0)$ dan memiliki jari-jari $r = 5$ adalah...", 
+                image: null, 
+                options: ["$x^2 + y^2 = 5$", "$x^2 + y^2 = 25$", "$x^2 - y^2 = 25$", "$x^2 + y^2 = 10$"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Persamaan lingkaran dengan pusat $(0,0)$ dan jari-jari $r$ adalah:\n$$x^2 + y^2 = r^2$$\nDengan $r = 5$, diperoleh:\n$$x^2 + y^2 = 5^2 \\implies x^2 + y^2 = 25$$" 
+            },
+            { 
+                id: 2, 
+                type: "Pilihan Ganda", 
+                content: "Persamaan lingkaran yang menyinggung sumbu-$X$ dan sumbu-$Y$ serta berpusat di kuadran I pada garis $2x + y = 6$ adalah...", 
+                image: null, 
+                options: ["$(x - 3)^2 + (y - 3)^2 = 9$", "$(x - 1)^2 + (y - 1)^2 = 1$", "$(x - 2)^2 + (y - 2)^2 = 4$", "$(x - 4)^2 + (y - 4)^2 = 16$"], 
+                answer: "C", 
+                difficulty: "HOTS", 
+                explanation: "Karena menyinggung kedua sumbu di kuadran I, maka pusat lingkaran $P(r, r)$.\nSubstitusi ke garis $2x + y = 6$:\n$$2(r) + r = 6 \\implies 3r = 6 \\implies r = 2$$\nMaka pusat $P(2,2)$ dan jari-jari $r = 2$.\nPersamaan lingkaran: $(x - 2)^2 + (y - 2)^2 = 4$." 
+            },
+            { 
+                id: 3, 
+                type: "Pilihan Ganda", 
+                content: "Kedudukan titik $A(3, 4)$ terhadap lingkaran $L \\equiv x^2 + y^2 = 25$ adalah...", 
+                image: null, 
+                options: ["Terletak di dalam lingkaran", "Terletak di luar lingkaran", "Memotong lingkaran", "Terletak pada lingkaran"], 
+                answer: "D", 
+                difficulty: "REGULER", 
+                explanation: "Substitusi titik $(3,4)$ ke dalam $x^2 + y^2$:\n$$3^2 + 4^2 = 9 + 16 = 25$$\nKarena $25 = 25$ (sama dengan $r^2$), maka titik $A$ terletak **pada** lingkaran." 
+            },
+            { 
+                id: 4, 
+                type: "Pilihan Ganda", 
+                content: "Panjang garis singgung yang ditarik dari titik $T(7, 1)$ ke lingkaran $x^2 + y^2 - 2x - 4y - 20 = 0$ adalah...", 
+                image: null, 
+                options: ["$2\\sqrt{3}\\text{ satuan}$", "$4\\text{ satuan}$", "$5\\text{ satuan}$", "$6\\text{ satuan}$"], 
+                answer: "A", 
+                difficulty: "HOTS", 
+                explanation: "Kuasa titik $T(7,1)$ terhadap lingkaran:\n$$K = 7^2 + 1^2 - 2(7) - 4(1) - 20 = 49 + 1 - 14 - 4 - 20 = 12$$\nPanjang garis singgung $d = \\sqrt{K} = \\sqrt{12} = 2\\sqrt{3}\\text{ satuan}$." 
+            },
+            { 
+                id: 5, 
+                type: "Pilihan Ganda", 
+                content: "Persamaan lingkaran yang berpusat di $P(2, -3)$ dengan jari-jari $r = 4$ adalah...", 
+                image: null, 
+                options: ["$(x + 2)^2 + (y - 3)^2 = 16$", "$(x - 2)^2 + (y + 3)^2 = 16$", "$(x - 2)^2 + (y - 3)^2 = 16$", "$(x + 2)^2 + (y + 3)^2 = 4$"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Persamaan baku lingkaran pusat $(a,b)$ dan jari-jari $r$:\n$$(x - a)^2 + (y - b)^2 = r^2$$\nSubstitusi $(a,b) = (2,-3)$ dan $r = 4$:\n$$(x - 2)^2 + (y - (-3))^2 = 4^2 \\implies (x - 2)^2 + (y + 3)^2 = 16$$" 
+            },
+            { 
+                id: 6, 
+                type: "Pilihan Ganda", 
+                content: "Persamaan lingkaran yang sepusat (konsentris) dengan lingkaran $x^2 + y^2 - 2x + 4y - 20 = 0$ dan menyinggung garis $3x - 4y + 4 = 0$ adalah...", 
+                image: null, 
+                options: ["$(x - 1)^2 + (y + 2)^2 = 25$", "$(x + 1)^2 + (y - 2)^2 = 9$", "$(x - 1)^2 + (y + 2)^2 = 9$", "$(x - 1)^2 + (y + 2)^2 = 16$"], 
+                answer: "C", 
+                difficulty: "HOTS", 
+                explanation: "Pusat lingkaran $P = \\left(-\\frac{-2}{2}, -\\frac{4}{2}\\right) = (1, -2)$.\nJarak pusat $(1,-2)$ ke garis $3x - 4y + 4 = 0$ adalah jari-jari $r$:\n$$r = \\left| \\frac{3(1) - 4(-2) + 4}{\\sqrt{3^2 + (-4)^2}} \\right| = \\left| \\frac{3 + 8 + 4}{5} \\right| = \\frac{15}{5} = 3$$\nSehingga persamaan lingkaran baru adalah $(x - 1)^2 + (y + 2)^2 = 3^2 = 9$." 
+            },
+            { 
+                id: 7, 
+                type: "Pilihan Ganda", 
+                content: "Kedudukan titik $B(1, 2)$ terhadap lingkaran $L \\equiv x^2 + y^2 = 9$ adalah...", 
+                image: null, 
+                options: ["Terletak pada lingkaran", "Terletak di luar lingkaran", "Sejajar lingkaran", "Terletak di dalam lingkaran"], 
+                answer: "D", 
+                difficulty: "REGULER", 
+                explanation: "Substitusi titik $(1,2)$ ke dalam $x^2 + y^2$:\n$$1^2 + 2^2 = 1 + 4 = 5$$\nKarena $5 < 9$ (kurang dari $r^2$), maka titik $B$ terletak **di dalam** lingkaran." 
+            },
+            { 
+                id: 8, 
+                type: "Pilihan Ganda", 
+                content: "Jika titik $P(k, 3)$ terletak di luar lingkaran $x^2 + y^2 - 4x + 2y - 15 = 0$, maka batasan nilai $k$ yang memenuhi adalah...", 
+                image: null, 
+                options: ["$k < 0$ atau $k > 4$", "$0 < k < 4$", "$k < -4$ atau $k > 0$", "$-4 < k < 0$"], 
+                answer: "A", 
+                difficulty: "HOTS", 
+                explanation: "Syarat titik di luar lingkaran ($K > 0$):\n$$k^2 + 3^2 - 4(k) + 2(3) - 15 > 0$$\n$$k^2 + 9 - 4k + 6 - 15 > 0 \\implies k^2 - 4k - 12 > 0 \\implies (k-6)(k+2) > 0$$\nUji pembuat nol $k = -2$ dan $k = 6$:\n$$k < -2 \\text{ atau } k > 6$$" 
+            },
+            { 
+                id: 9, 
+                type: "Pilihan Ganda", 
+                content: "Pusat dan jari-jari dari persamaan lingkaran $x^2 + y^2 - 6x + 8y - 11 = 0$ berturut-turut adalah...", 
+                image: null, 
+                options: ["$(-3, 4)$ dan $6$", "$(3, -4)$ dan $6$", "$(3, -4)$ dan $36$", "$(-3, 4)$ dan $36$"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Dari bentuk umum $x^2 + y^2 + Ax + By + C = 0$, diperoleh $A = -6, B = 8, C = -11$.\n$$\\text{Pusat } P = \\left(-\\frac{A}{2}, -\\frac{B}{2}\\right) = (3, -4)$$\n$$\\text{Jari-jari } r = \\sqrt{a^2 + b^2 - C} = \\sqrt{3^2 + (-4)^2 - (-11)} = \\sqrt{9 + 16 + 11} = \\sqrt{36} = 6$$" 
+            },
+            { 
+                id: 10, 
+                type: "Pilihan Ganda", 
+                content: "Sebuah radar memancar berbentuk lingkaran dengan persamaan $x^2 + y^2 - 4x + 6y - 12 = 0$. Luas daerah jangkauan radar tersebut adalah...", 
+                image: null, 
+                options: ["$314\\text{ satuan luas}$", "$157\\text{ satuan luas}$", "$78.5\\text{ satuan luas}$", "$25\\text{ satuan luas}$"], 
+                answer: "C", 
+                difficulty: "HOTS", 
+                explanation: "Cari $r$ dari persamaan $x^2 + y^2 - 4x + 6y - 12 = 0$:\n$$a = 2, \\quad b = -3, \\quad C = -12$$\n$$r = \\sqrt{2^2 + (-3)^2 - (-12)} = \\sqrt{4 + 9 + 12} = \\sqrt{25} = 5$$\nLuas $\\text{L} = \\pi r^2 = 3.14 \\times 5^2 = 3.14 \\times 25 = 78.5\\text{ satuan luas}$." 
+            },
+            { 
+                id: 11, 
+                type: "Pilihan Ganda", 
+                content: "Kedudukan titik $C(5, 2)$ terhadap lingkaran $L \\equiv (x - 2)^2 + (y + 1)^2 = 16$ adalah...", 
+                image: null, 
+                options: ["Terletak pada lingkaran", "Terletak di dalam lingkaran", "Berada di titik pusat", "Terletak di luar lingkaran"], 
+                answer: "D", 
+                difficulty: "REGULER", 
+                explanation: "Substitusi $(5,2)$ ke $(x - 2)^2 + (y + 1)^2$:\n$$(5 - 2)^2 + (2 + 1)^2 = 3^2 + 3^2 = 9 + 9 = 18$$\nKarena $18 > 16$ (lebih dari $r^2$), maka titik $C$ terletak **di luar** lingkaran." 
+            },
+            { 
+                id: 12, 
+                type: "Pilihan Ganda", 
+                content: "Persamaan lingkaran yang melalui titik $(0,0)$, $(4,0)$, dan $(0,6)$ adalah...", 
+                image: null, 
+                options: ["$x^2 + y^2 - 4x - 6y = 0$", "$x^2 + y^2 + 4x + 6y = 0$", "$x^2 + y^2 - 8x - 12y = 0$", "$x^2 + y^2 - 2x - 3y = 0$"], 
+                answer: "A", 
+                difficulty: "HOTS", 
+                explanation: "Bentuk umum $x^2 + y^2 + Ax + By + C = 0$.\n1. Melalui $(0,0) \\implies C = 0$.\n2. Melalui $(4,0) \\implies 16 + 4A = 0 \\implies A = -4$.\n3. Melalui $(0,6) \\implies 36 + 6B = 0 \\implies B = -6$.\nJadi, persamaannya $x^2 + y^2 - 4x - 6y = 0$." 
+            },
+            { 
+                id: 13, 
+                type: "Pilihan Ganda", 
+                content: "Agar titik $(2, a)$ terletak pada lingkaran $x^2 + y^2 = 13$, nilai $a$ yang memenuhi adalah...", 
+                image: null, 
+                options: ["$2$ atau $-2$", "$3$ atau $-3$", "$4$ atau $-4$", "$1$ atau $-1$"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Substitusi titik $(2,a)$ ke $x^2 + y^2 = 13$:\n$$2^2 + a^2 = 13 \\implies 4 + a^2 = 13 \\implies a^2 = 9 \\implies a = \\pm 3$$" 
+            },
+            { 
+                id: 14, 
+                type: "Pilihan Ganda", 
+                content: "Titik $A(a, 1)$ berada di dalam lingkaran $(x - 1)^2 + (y + 2)^2 = 25$. Batasan nilai $a$ adalah...", 
+                image: null, 
+                options: ["$-5 < a < 3$", "$-4 < a < 4$", "$-3 < a < 5$", "$1 < a < 5$"], 
+                answer: "C", 
+                difficulty: "HOTS", 
+                explanation: "Syarat di dalam lingkaran:\n$$(a - 1)^2 + (1 + 2)^2 < 25 \\implies (a - 1)^2 + 9 < 25$$\n$$(a - 1)^2 < 16 \\implies -4 < a - 1 < 4 \\implies -3 < a < 5$$" 
+            },
+            { 
+                id: 15, 
+                type: "Pilihan Ganda", 
+                content: "Nilai diskriminan ($D$) untuk menentukan kedudukan garis terhadap lingkaran yang memotong lingkaran di dua titik berbeda harus memenuhi syarat...", 
+                image: null, 
+                options: ["$D = 0$", "$D < 0$", "$D \\le 0$", "$D > 0$"], 
+                answer: "D", 
+                difficulty: "REGULER", 
+                explanation: "Syarat kedudukan garis terhadap lingkaran:\n1. $D > 0$: garis memotong di dua titik.\n2. $D = 0$: garis menyinggung lingkaran.\n3. $D < 0$: garis tidak memotong maupun menyinggung." 
+            },
+            { 
+                id: 16, 
+                type: "Pilihan Ganda", 
+                content: "Agar garis $y = x + c$ menyinggung lingkaran $x^2 + y^2 = 8$, nilai $c$ yang memenuhi adalah...", 
+                image: null, 
+                options: ["$c = 4$ atau $c = -4$", "$c = 2$ atau $c = -2$", "$c = 8$ atau $c = -8$", "$c = 2\\sqrt{2}$"], 
+                answer: "A", 
+                difficulty: "HOTS", 
+                explanation: "Substitusi $y = x + c$ ke $x^2 + y^2 = 8$:\n$$x^2 + (x + c)^2 = 8 \\implies 2x^2 + 2cx + (c^2 - 8) = 0$$\nSyarat menyinggung ($D = 0$):\n$$D = (2c)^2 - 4(2)(c^2 - 8) = 0 \\implies 4c^2 - 8c^2 + 64 = 0$$\n$$-4c^2 = -64 \\implies c^2 = 16 \\implies c = \\pm 4$$" 
+            },
+            { 
+                id: 17, 
+                type: "Pilihan Ganda", 
+                content: "Kedudukan garis $y = x + 2$ terhadap lingkaran $x^2 + y^2 = 4$ adalah...", 
+                image: null, 
+                options: ["Menyinggung lingkaran", "Memotong di dua titik", "Tidak memotong lingkaran", "Melalui titik pusat"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Substitusi $y = x + 2$ ke $x^2 + y^2 = 4$:\n$$x^2 + (x + 2)^2 = 4 \\implies x^2 + x^2 + 4x + 4 = 4 \\implies 2x^2 + 4x = 0$$\nNilai Diskriminan $D = b^2 - 4ac = 4^2 - 4(2)(0) = 16 > 0$.\nKarena $D > 0$, maka garis **memotong di dua titik**." 
+            },
+            { 
+                id: 18, 
+                type: "Pilihan Ganda", 
+                content: "Garis $3x + 4y + p = 0$ menyinggung lingkaran $x^2 + y^2 - 2x - 4y - 20 = 0$. Nilai $p$ yang mungkin adalah...", 
+                image: null, 
+                options: ["$10$ atau $-30$", "$12$ atau $-24$", "$14$ atau $-36$", "$16$ atau $-40$"], 
+                answer: "C", 
+                difficulty: "HOTS", 
+                explanation: "Pusat lingkaran $P(1, 2)$ dan $r = \\sqrt{1^2 + 2^2 - (-20)} = 5$.\nJarak pusat ke garis singgung harus sama dengan jari-jari $r = 5$:\n$$\\left| \\frac{3(1) + 4(2) + p}{\\sqrt{3^2 + 4^2}} \\right| = 5 \\implies \\left| \\frac{11 + p}{5} \\right| = 5 \\implies |11 + p| = 25$$\n1. $11 + p = 25 \\implies p = 14$\n2. $11 + p = -25 \\implies p = -36$" 
+            },
+            { 
+                id: 19, 
+                type: "Pilihan Ganda", 
+                content: "Kedudukan garis $y = 3$ terhadap lingkaran $x^2 + y^2 = 9$ adalah...", 
+                image: null, 
+                options: ["Memotong di dua titik", "Di luar lingkaran", "Melalui pusat lingkaran", "Menyinggung lingkaran"], 
+                answer: "D", 
+                difficulty: "REGULER", 
+                explanation: "Substitusi $y = 3$ ke $x^2 + y^2 = 9$:\n$$x^2 + 3^2 = 9 \\implies x^2 + 9 = 9 \\implies x^2 = 0$$\nDiperoleh satu nilai $x = 0$, artinya garis **menyinggung** lingkaran di titik $(0,3)$." 
+            },
+            { 
+                id: 20, 
+                type: "Pilihan Ganda", 
+                content: "Persamaan garis singgung lingkaran $x^2 + y^2 = 25$ yang sejajar dengan garis $2x - y + 5 = 0$ adalah...", 
+                image: null, 
+                options: ["$y = 2x \\pm 5\\sqrt{5}$", "$y = 2x \\pm 5$", "$y = -2x \\pm 5\\sqrt{5}$", "$y = 2x \\pm 25$"], 
+                answer: "A", 
+                difficulty: "HOTS", 
+                explanation: "Gradien garis $2x - y + 5 = 0$ adalah $m = 2$.\nRumus garis singgung $x^2 + y^2 = r^2$ dengan gradien $m$:\n$$y = mx \\pm r\\sqrt{m^2 + 1}$$\nDengan $r = 5, m = 2$:\n$$y = 2x \\pm 5\\sqrt{2^2 + 1} \\implies y = 2x \\pm 5\\sqrt{5}$$" 
+            },
+            { 
+                id: 21, 
+                type: "Pilihan Ganda", 
+                content: "Persamaan lingkaran yang berpusat di $(0,0)$ dan melalui titik $P(-3, 4)$ adalah...", 
+                image: null, 
+                options: ["$x^2 + y^2 = 7$", "$x^2 + y^2 = 25$", "$x^2 + y^2 = 12$", "$x^2 + y^2 = 16$"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Jari-jari lingkaran dihitung dari jarak titik $(-3,4)$ ke pusat $(0,0)$:\n$$r^2 = (-3)^2 + 4^2 = 9 + 16 = 25$$\nMaka persamaan lingkarannya adalah $x^2 + y^2 = 25$." 
+            },
+            { 
+                id: 22, 
+                type: "Pilihan Ganda", 
+                content: "Batasan nilai $m$ agar garis $y = mx$ memotong lingkaran $(x - 3)^2 + y^2 = 3$ di dua titik yang berbeda adalah...", 
+                image: null, 
+                options: ["$m < -\\sqrt{2}$ atau $m > \\sqrt{2}$", "$-\\sqrt{3} < m < \\sqrt{3}$", "$-\\frac{\\sqrt{2}}{2} < m < \\frac{\\sqrt{2}}{2}$", "$m < -2$ atau $m > 2$"], 
+                answer: "C", 
+                difficulty: "HOTS", 
+                explanation: "Substitusi $y = mx$ ke $x^2 - 6x + 9 + y^2 = 3$:\n$$(1 + m^2)x^2 - 6x + 6 = 0$$\nSyarat memotong ($D > 0$):\n$$(-6)^2 - 4(1 + m^2)(6) > 0 \\implies 36 - 24 - 24m^2 > 0$$\n$$12 - 24m^2 > 0 \\implies m^2 < \\frac{1}{2} \\implies -\\frac{\\sqrt{2}}{2} < m < \\frac{\\sqrt{2}}{2}$$" 
+            },
+            { 
+                id: 23, 
+                type: "Pilihan Ganda", 
+                content: "Persamaan lingkaran berpuncak/berpusat di $(0,0)$ yang menyinggung garis $x = -4$ adalah...", 
+                image: null, 
+                options: ["$x^2 + y^2 = 4$", "$x^2 + y^2 = 8$", "$x^2 + y^2 = 20$", "$x^2 + y^2 = 16$"], 
+                answer: "D", 
+                difficulty: "REGULER", 
+                explanation: "Jarak pusat $(0,0)$ ke garis vertikal $x = -4$ adalah $r = |-4| = 4$.\nSehingga persamaan lingkarannya $x^2 + y^2 = 4^2 = 16$." 
+            },
+            { 
+                id: 24, 
+                type: "Pilihan Ganda", 
+                content: "Jarak terdekat dari titik $P(9, 2)$ ke lingkaran $x^2 + y^2 - 6x - 8y = 0$ adalah...", 
+                image: null, 
+                options: ["$2\\sqrt{10} - 5\\text{ satuan}$", "$3\\text{ satuan}$", "$2\\text{ satuan}$", "$4\\text{ satuan}$"], 
+                answer: "A", 
+                difficulty: "HOTS", 
+                explanation: "Pusat $A(3,4)$, $r = \\sqrt{3^2 + 4^2 - 0} = 5$.\nJarak titik $P(9,2)$ ke pusat $A(3,4)$:\n$$d_0 = \\sqrt{(9-3)^2 + (2-4)^2} = \\sqrt{36 + 4} = \\sqrt{40} = 2\\sqrt{10}$$\nJarak terdekat $d_{\\min} = d_0 - r = 2\\sqrt{10} - 5\\text{ satuan}$." 
+            },
+            { 
+                id: 25, 
+                type: "Pilihan Ganda", 
+                content: "Jika kuasa titik $P(x_1, y_1)$ terhadap lingkaran bernilai nol ($K = 0$), maka kedudukan titik $P$ adalah...", 
+                image: null, 
+                options: ["Berada di dalam lingkaran", "Tepat berada pada lingkaran", "Berada di luar lingkaran", "Merupakan titik pusat lingkaran"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Kuasa titik $K = 0$ berarti substitusi koordinat titik ke persamaan lingkaran menghasilkan $0$, yang menandakan titik tersebut terletak tepat **pada** lingkaran." 
+            },
+            { 
+                id: 26, 
+                type: "Benar-Salah", 
+                content: "Lingkaran $x^2 + y^2 - 6x - 8y + 21 = 0$ menyinggung sumbu-$X$.", 
+                image: null, 
+                options: ["Benar", "Salah"], 
+                answer: "B", 
+                difficulty: "HOTS", 
+                explanation: "Pusat $(3,4)$, dan $r = \\sqrt{3^2 + 4^2 - 21} = \\sqrt{25 - 21} = 2$.\nAgar menyinggung sumbu-$X$, jari-jari harus sama dengan $|y_p| = |4| = 4$. Karena $r = 2 \\neq 4$, lingkaran tidak menyinggung sumbu-$X$." 
+            },
+            { 
+                id: 27, 
+                type: "Benar-Salah", 
+                content: "Lingkaran dengan persamaan $(x - 1)^2 + (y + 5)^2 = 9$ memiliki titik pusat $P(-1, 5)$.", 
+                image: null, 
+                options: ["Benar", "Salah"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Bentuk baku $(x - a)^2 + (y - b)^2 = r^2$ memberikan pusat $(a,b) = (1, -5)$, bukan $(-1, 5)$." 
+            },
+            { 
+                id: 28, 
+                type: "Benar-Salah", 
+                content: "Garis $y = 2x + 10$ tidak memotong maupun menyinggung lingkaran $x^2 + y^2 = 9$.", 
+                image: null, 
+                options: ["Benar", "Salah"], 
+                answer: "A", 
+                difficulty: "HOTS", 
+                explanation: "Substitusi $y = 2x + 10$ ke $x^2 + y^2 = 9$:\n$$x^2 + (2x + 10)^2 = 9 \\implies 5x^2 + 40x + 91 = 0$$\nHitung $D = 40^2 - 4(5)(91) = 1600 - 1820 = -220 < 0$.\nKarena $D < 0$, garis **tidak memotong maupun menyinggung** lingkaran." 
+            },
+            { 
+                id: 29, 
+                type: "Benar-Salah", 
+                content: "Titik $P(0,0)$ terletak di dalam lingkaran $x^2 + y^2 - 4x + 6y - 12 = 0$.", 
+                image: null, 
+                options: ["Benar", "Salah"], 
+                answer: "A", 
+                difficulty: "REGULER", 
+                explanation: "Substitusi $(0,0)$ ke dalam ruas kiri persamaan:\n$$0^2 + 0^2 - 4(0) + 6(0) - 12 = -12$$\nKarena $-12 < 0$, maka titik $P(0,0)$ terletak di **dalam** lingkaran." 
+            },
+            { 
+                id: 30, 
+                type: "Benar-Salah", 
+                content: "Garis $x = 5$ memotong lingkaran $x^2 + y^2 = 16$ di dua titik berbeda.", 
+                image: null, 
+                options: ["Benar", "Salah"], 
+                answer: "B", 
+                difficulty: "REGULER", 
+                explanation: "Substitusi $x = 5$ ke $x^2 + y^2 = 16$:\n$$5^2 + y^2 = 16 \\implies 25 + y^2 = 16 \\implies y^2 = -9$$\nKarena $y^2 < 0$, tidak ada nilai $y$ riil, sehingga garis **tidak memotong** lingkaran." 
+            }
+        ];
+
+        let currentUser = { nama: "", kelas: "" };
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let userDoubts = {};
+        let timerInterval = null;
+        let timeRemaining = 3600;
+        let violationsCount = 0;
+        let cheatTimerInterval = null;
+        let isExamActive = false;
+
+        let studentResultsLog = JSON.parse(localStorage.getItem('cbt_student_results_11')) || [];
+
+        function renderMath() {
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise().catch((err) => console.error('MathJax Typeset Error:', err));
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupAntiCheatingEvents();
+        });
+
+        function startExam(event) {
+            event.preventDefault();
+            const nama = document.getElementById('input-nama').value.trim();
+            const kelas = document.getElementById('input-kelas').value.trim();
+
+            if (!nama || !kelas) {
+                alert("Silakan lengkapi nama dan kelas!");
+                return;
+            }
+
+            currentUser = { nama, kelas };
+            document.getElementById('exam-user-info').innerText = `${currentUser.nama} (${currentUser.kelas})`;
+            
+            document.getElementById('page-home').classList.add('hidden');
+            document.getElementById('page-exam').classList.remove('hidden');
+
+            isExamActive = true;
+            initExamNavigation();
+            loadQuestion(0);
+            startTimer();
+        }
+
+        function initExamNavigation() {
+            const grid = document.getElementById('question-nav-grid');
+            grid.innerHTML = "";
+
+            questions.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `nav-btn-${idx}`;
+                btn.onclick = () => loadQuestion(idx);
+                btn.className = "h-9 w-full rounded font-bold text-xs border flex items-center justify-center transition bg-gray-100 text-gray-700 border-gray-300";
+                btn.innerText = idx + 1;
+                grid.appendChild(btn);
+            });
+            updateNavGridStatus();
+        }
+
+        function updateNavGridStatus() {
+            let answeredCount = 0;
+            questions.forEach((q, idx) => {
+                const btn = document.getElementById(`nav-btn-${idx}`);
+                if (!btn) return;
+
+                const isAnswered = userAnswers[q.id] !== undefined;
+                const isDoubt = userDoubts[q.id];
+
+                if (isAnswered) answeredCount++;
+
+                btn.className = "h-9 w-full rounded font-bold text-xs border flex items-center justify-center transition ";
+                if (idx === currentQuestionIndex) {
+                    btn.classList.add("ring-2", "ring-anbk-blue", "ring-offset-1");
+                }
+
+                if (isDoubt) {
+                    btn.classList.add("bg-amber-400", "text-white", "border-amber-500");
+                } else if (isAnswered) {
+                    btn.classList.add("bg-emerald-500", "text-white", "border-emerald-600");
+                } else {
+                    btn.classList.add("bg-gray-100", "text-gray-700", "border-gray-300", "hover:bg-gray-200");
+                }
+            });
+
+            document.getElementById('answered-count').innerText = `${answeredCount} / ${questions.length}`;
+        }
+
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const q = questions[index];
+
+            document.getElementById('question-number-title').innerText = `Soal Nomor ${index + 1}`;
+            document.getElementById('question-type-badge').innerText = q.type;
+            document.getElementById('exam-difficulty-tag').innerHTML = `Tingkat Kesulitan: <span class="font-bold ${q.difficulty === 'HOTS' ? 'text-amber-600' : 'text-blue-600'}">${q.difficulty}</span>`;
+            document.getElementById('question-text').innerHTML = q.content;
+
+            const imgContainer = document.getElementById('question-image-container');
+            const imgTag = document.getElementById('question-image');
+            if (q.image) {
+                imgTag.src = q.image;
+                imgContainer.classList.remove('hidden');
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = "";
+
+            const optionLabels = ["A", "B", "C", "D"];
+            q.options.forEach((optText, optIdx) => {
+                const optKey = optionLabels[optIdx];
+                const isChecked = userAnswers[q.id] === optKey;
+
+                const optLabel = document.createElement('label');
+                optLabel.className = `flex items-center gap-3 p-3 rounded-lg border text-sm cursor-pointer transition ${isChecked ? 'bg-blue-50 border-anbk-blue text-anbk-blue font-semibold' : 'border-gray-200 hover:bg-gray-50'}`;
+                
+                optLabel.innerHTML = `
+                    <input type="radio" name="option" value="${optKey}" ${isChecked ? 'checked' : ''} onchange="selectAnswer(${q.id}, '${optKey}')" class="text-anbk-blue focus:ring-anbk-blue w-4 h-4">
+                    <span class="font-bold border rounded-full w-6 h-6 flex items-center justify-center text-xs ${isChecked ? 'bg-anbk-blue text-white border-anbk-blue' : 'bg-gray-100 text-gray-600'}">${optKey}</span>
+                    <span class="flex-grow">${optText}</span>
+                `;
+                optContainer.appendChild(optLabel);
+            });
+
+            document.getElementById('chk-doubt').checked = !!userDoubts[q.id];
+
+            document.getElementById('btn-prev').disabled = (index === 0);
+            const btnNext = document.getElementById('btn-next');
+            if (index === questions.length - 1) {
+                btnNext.innerHTML = `Selesai Ujian <i class="fa-solid fa-check-circle"></i>`;
+                btnNext.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-lg text-sm transition flex items-center gap-2";
+            } else {
+                btnNext.innerHTML = `Berikutnya <i class="fa-solid fa-arrow-right"></i>`;
+                btnNext.className = "bg-anbk-blue hover:bg-blue-800 text-white font-bold px-5 py-2 rounded-lg text-sm transition flex items-center gap-2";
+            }
+
+            updateNavGridStatus();
+            renderMath();
+        }
+
+        function selectAnswer(qId, val) {
+            userAnswers[qId] = val;
+            updateNavGridStatus();
+            loadQuestion(currentQuestionIndex);
+        }
+
+        function toggleDoubt() {
+            const qId = questions[currentQuestionIndex].id;
+            userDoubts[qId] = document.getElementById('chk-doubt').checked;
+            updateNavGridStatus();
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) loadQuestion(currentQuestionIndex - 1);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            } else {
+                confirmSubmitExam();
+            }
+        }
+
+        function confirmSubmitExam() {
+            const totalAnswered = Object.keys(userAnswers).length;
+            if (confirm(`Apakah Anda yakin ingin menyelesaikan ujian?\nTerjawab: ${totalAnswered} dari ${questions.length} soal.`)) {
+                submitExam();
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                let m = Math.floor(timeRemaining / 60);
+                let s = timeRemaining % 60;
+                document.getElementById('timer-display').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Waktu ujian telah habis!");
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function setupAntiCheatingEvents() {
+            document.addEventListener('contextmenu', e => e.preventDefault());
+
+            document.addEventListener('keydown', e => {
+                if (
+                    e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) ||
+                    (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 'c' || e.key === 'C'))
+                ) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && isExamActive) {
+                    triggerCheatViolation();
+                }
+            });
+        }
+
+        function triggerCheatViolation() {
+            violationsCount++;
+            document.getElementById('violation-count').innerText = violationsCount;
+
+            if (violationsCount >= 3) {
+                alert("Anda telah melakukan pelanggaran batas maksimal (3x berpindah tab). Ujian disubmit otomatis!");
+                dismissCheatOverlay();
+                submitExam();
+                return;
+            }
+
+            const overlay = document.getElementById('cheat-overlay');
+            overlay.classList.remove('hidden');
+
+            let countdown = 10;
+            document.getElementById('cheat-timer').innerText = countdown;
+
+            clearInterval(cheatTimerInterval);
+            cheatTimerInterval = setInterval(() => {
+                countdown--;
+                document.getElementById('cheat-timer').innerText = countdown;
+                if (countdown <= 0) {
+                    clearInterval(cheatTimerInterval);
+                    alert("Waktu peringatan habis. Ujian Anda disubmit otomatis!");
+                    dismissCheatOverlay();
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function dismissCheatOverlay() {
+            clearInterval(cheatTimerInterval);
+            document.getElementById('cheat-overlay').classList.add('hidden');
+        }
+
+        function submitExam() {
+            isExamActive = false;
+            clearInterval(timerInterval);
+            clearInterval(cheatTimerInterval);
+
+            let correctCount = 0;
+
+            questions.forEach(q => {
+                if (userAnswers[q.id] === q.answer) {
+                    correctCount++;
+                }
+            });
+
+            const scoreInScale100 = ((correctCount / questions.length) * 100).toFixed(1);
+            const status = scoreInScale100 >= 75 ? "LULUS" : "REMIDIAL";
+            const now = new Date().toLocaleString('id-ID');
+
+            const resultObj = {
+                waktu: now,
+                nama: currentUser.nama,
+                kelas: currentUser.kelas,
+                answered: Object.keys(userAnswers).length,
+                correct: correctCount,
+                wrong: questions.length - correctCount,
+                score: parseFloat(scoreInScale100),
+                status: status
+            };
+
+            studentResultsLog.unshift(resultObj);
+            localStorage.setItem('cbt_student_results_11', JSON.stringify(studentResultsLog));
+
+            // UI Render
+            document.getElementById('res-nama').innerText = currentUser.nama;
+            document.getElementById('res-kelas').innerText = currentUser.kelas;
+            document.getElementById('res-answered').innerText = `${Object.keys(userAnswers).length} dari ${questions.length} Soal`;
+            document.getElementById('res-score').innerText = scoreInScale100;
+
+            // Send Result to Google Sheets Cloud
+            sendToGoogleSheets(resultObj);
+
+            const recBox = document.getElementById('res-recommendation');
+            let recText = `<strong><i class="fa-solid fa-lightbulb mr-1"></i> Analisis & Saran Pembelajaran:</strong><br>`;
+            if (scoreInScale100 >= 85) {
+                recText += `Sangat Baik! Anda menguasai materi dengan nilai ${scoreInScale100}. Pertahankan pemahaman konsep Fungsi dan Invers.`;
+            } else if (scoreInScale100 >= 75) {
+                recText += `Sudah Baik. Anda telah melampaui batas KKM (${scoreInScale100}/100). Tingkatkan pemahaman pada penyelesaian soal HOTS.`;
+            } else {
+                recText += `Perlu Pengayaan Khusus. Nilai Anda (${scoreInScale100}/100) belum mencapai KKM. Disarankan untuk mengulas kembali dasar Domain dan Fungsi Invers.`;
+            }
+            recBox.innerHTML = recText;
+
+            const detailContainer = document.getElementById('result-detail-container');
+            detailContainer.innerHTML = "";
+
+            questions.forEach((q, idx) => {
+                const userAnsKey = userAnswers[q.id];
+                const optIndex = userAnsKey ? ["A", "B", "C", "D"].indexOf(userAnsKey) : -1;
+                const userAnsText = optIndex !== -1 ? `${userAnsKey}. ${q.options[optIndex]}` : "Tidak Dijawab";
+                
+                const isCorrect = userAnsKey === q.answer;
+                const correctOptIndex = ["A", "B", "C", "D"].indexOf(q.answer);
+                const correctAnsText = `${q.answer}. ${q.options[correctOptIndex]}`;
+
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-lg border text-xs space-y-2 ${isCorrect ? 'bg-emerald-50/50 border-emerald-200' : 'bg-red-50/50 border-red-200'}`;
+                item.innerHTML = `
+                    <div class="flex justify-between font-bold">
+                        <span class="text-gray-700">Soal ${idx + 1} (${q.difficulty})</span>
+                        <span class="${isCorrect ? 'text-emerald-600' : 'text-red-600'}">${isCorrect ? '<i class="fa-solid fa-circle-check"></i> Benar' : '<i class="fa-solid fa-circle-xmark"></i> Salah'}</span>
+                    </div>
+                    <div class="text-gray-800 font-medium">${q.content}</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] pt-1">
+                        <div>Jawaban Anda: <span class="font-bold ${isCorrect ? 'text-emerald-700' : 'text-red-700'}">${userAnsText}</span></div>
+                        <div>Kunci Jawaban: <span class="font-bold text-emerald-700">${correctAnsText}</span></div>
+                    </div>
+                    <div class="bg-white p-2.5 rounded border text-gray-600 text-[11px] whitespace-pre-line leading-relaxed">
+                        <strong>Pembahasan:</strong><br>${q.explanation}
+                    </div>
+                `;
+                detailContainer.appendChild(item);
+            });
+
+            document.getElementById('page-exam').classList.add('hidden');
+            document.getElementById('page-result').classList.remove('hidden');
+
+            renderMath();
+        }
+
+        // FUNCTION TO POST DATA TO GOOGLE SHEETS
+        function sendToGoogleSheets(dataObj) {
+            const statusElem = document.getElementById('res-cloud-status');
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("AKfycbx...")) {
+                statusElem.className = "text-amber-600 font-bold";
+                statusElem.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Disimpan di Browser (URL Cloud Belum Dipasang)`;
+                return;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dataObj)
+            })
+            .then(() => {
+                statusElem.className = "text-emerald-600 font-bold";
+                statusElem.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Terkirim ke Spreadsheet!`;
+            })
+            .catch(err => {
+                console.error("Cloud Error:", err);
+                statusElem.className = "text-red-600 font-bold";
+                statusElem.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Gagal Sync Cloud`;
+            });
+        }
+
+        function toggleTeacherAccess() {
+            const pass = prompt("Masukkan Password Akses Guru:");
+            if (pass === "15102012") {
+                document.getElementById('page-home').classList.add('hidden');
+                document.getElementById('page-exam').classList.add('hidden');
+                document.getElementById('page-result').classList.add('hidden');
+                document.getElementById('page-teacher').classList.remove('hidden');
+                renderTeacherQuestions();
+                fetchCloudResults();
+            } else if (pass !== null) {
+                alert("Password Salah! Akses Ditolak.");
+            }
+        }
+
+        function exitTeacherMode() {
+            document.getElementById('page-teacher').classList.add('hidden');
+            document.getElementById('page-home').classList.remove('hidden');
+        }
+
+        function switchTeacherTab(tabId) {
+            document.getElementById('tab-soal').classList.add('hidden');
+            document.getElementById('tab-rekap').classList.add('hidden');
+            
+            document.getElementById('btn-tab-soal').className = "py-2 px-4 border-b-2 font-bold text-xs border-transparent text-gray-500 hover:text-gray-700";
+            document.getElementById('btn-tab-rekap').className = "py-2 px-4 border-b-2 font-bold text-xs border-transparent text-gray-500 hover:text-gray-700";
+
+            document.getElementById(tabId).classList.remove('hidden');
+
+            if (tabId === 'tab-soal') {
+                document.getElementById('btn-tab-soal').className = "py-2 px-4 border-b-2 font-bold text-xs border-anbk-blue text-anbk-blue";
+            } else {
+                document.getElementById('btn-tab-rekap').className = "py-2 px-4 border-b-2 font-bold text-xs border-anbk-blue text-anbk-blue";
+            }
+        }
+
+        function renderTeacherQuestions() {
+            const container = document.getElementById('teacher-questions-list');
+            container.innerHTML = "";
+
+            questions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-3 bg-gray-50 border rounded-lg text-xs space-y-1.5";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center font-bold">
+                        <span class="text-anbk-blue">#${idx + 1} - ${q.type} (${q.difficulty})</span>
+                        <div class="space-x-2">
+                            <button onclick="editQuestion(${q.id})" class="text-blue-600 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                            <button onclick="deleteQuestion(${q.id})" class="text-red-600 hover:underline"><i class="fa-solid fa-trash"></i> Hapus</button>
+                        </div>
+                    </div>
+                    <div class="text-gray-800 font-medium">${q.content}</div>
+                    <div class="text-gray-500">Kunci: <strong class="text-emerald-600">${q.answer}</strong> | Pilihan: ${q.options.join(", ")}</div>
+                `;
+                container.appendChild(card);
+            });
+
+            renderMath();
+        }
+
+        // FETCH DATA FROM GOOGLE SHEETS CLOUD
+        function fetchCloudResults() {
+            const tbody = document.getElementById('student-results-tbody');
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-blue-600"><i class="fa-solid fa-spinner animate-spin"></i> Memuat data rekap dari Google Spreadsheet...</td></tr>`;
+
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("AKfycbx...")) {
+                renderTeacherResultsLocal();
+                return;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length <= 1) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-gray-400">Belum ada rekap data di Google Sheets.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = "";
+                // Skip header (i=0)
+                for (let i = 1; i < data.length; i++) {
+                    const row = data[i];
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-gray-50 border-b";
+                    tr.innerHTML = `
+                        <td class="px-4 py-2.5">${i}</td>
+                        <td class="px-4 py-2.5 text-gray-500">${row[0] || '-'}</td>
+                        <td class="px-4 py-2.5 font-bold text-gray-800">${row[1] || '-'}</td>
+                        <td class="px-4 py-2.5">${row[2] || '-'}</td>
+                        <td class="px-4 py-2.5 text-center">${row[3] || '0'} / 30</td>
+                        <td class="px-4 py-2.5 text-center text-xs">
+                            <span class="text-emerald-600 font-bold">${row[4] || 0} B</span> / 
+                            <span class="text-red-600 font-bold">${row[5] || 0} S</span>
+                        </td>
+                        <td class="px-4 py-2.5 text-center font-extrabold text-sm text-anbk-blue">${row[6] || 0}</td>
+                        <td class="px-4 py-2.5 text-center">
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${row[7] === 'LULUS' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                                ${row[7] || 'REMIDIAL'}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            })
+            .catch(err => {
+                console.error("Fetch Cloud Error:", err);
+                renderTeacherResultsLocal();
+            });
+        }
+
+        function renderTeacherResultsLocal() {
+            const tbody = document.getElementById('student-results-tbody');
+            tbody.innerHTML = "";
+
+            if (studentResultsLog.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-gray-400">Belum ada data nilai peserta didik di perangkat lokal ini.</td></tr>`;
+                return;
+            }
+
+            studentResultsLog.forEach((res, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b";
+                tr.innerHTML = `
+                    <td class="px-4 py-2.5">${idx + 1}</td>
+                    <td class="px-4 py-2.5 text-gray-500">${res.waktu || '-'}</td>
+                    <td class="px-4 py-2.5 font-bold text-gray-800">${res.nama}</td>
+                    <td class="px-4 py-2.5">${res.kelas}</td>
+                    <td class="px-4 py-2.5 text-center">${res.answered} / 30</td>
+                    <td class="px-4 py-2.5 text-center text-xs">
+                        <span class="text-emerald-600 font-bold">${res.correct} B</span> / 
+                        <span class="text-red-600 font-bold">${res.wrong} S</span>
+                    </td>
+                    <td class="px-4 py-2.5 text-center font-extrabold text-sm text-anbk-blue">${res.score}</td>
+                    <td class="px-4 py-2.5 text-center">
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${res.status === 'LULUS' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${res.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // DOWNLOAD REKAP TABLE AS EXCEL FILE (.XLSX)
+        function downloadExcel() {
+            const table = document.getElementById('table-rekap-nilai');
+            if (!table) return;
+
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Rekap Nilai ASTS" });
+            XLSX.writeFile(wb, "Rekap_Nilai_ASTS_Matematika.xlsx");
+        }
+
+        function clearStudentResults() {
+            if (confirm("Apakah Anda yakin ingin menghapus data rekap di perangkat lokal ini?")) {
+                studentResultsLog = [];
+                localStorage.removeItem('cbt_student_results_11');
+                fetchCloudResults();
+                alert("Data rekap lokal berhasil dibersihkan!");
+            }
+        }
+
+        function openQuestionModal(isEdit = false) {
+            document.getElementById('question-modal').classList.remove('hidden');
+            if (!isEdit) {
+                document.getElementById('modal-title').innerText = "Tambah Soal Baru";
+                document.getElementById('form-edit-question').reset();
+                document.getElementById('edit-q-id').value = "";
+            }
+        }
+
+        function closeQuestionModal() {
+            document.getElementById('question-modal').classList.add('hidden');
+        }
+
+        function editQuestion(qId) {
+            const q = questions.find(item => item.id === qId);
+            if (!q) return;
+
+            document.getElementById('modal-title').innerText = "Edit Soal #" + q.id;
+            document.getElementById('edit-q-id').value = q.id;
+            document.getElementById('edit-q-content').value = q.content;
+            document.getElementById('edit-q-image').value = q.image || "";
+            document.getElementById('edit-q-type').value = q.type;
+            document.getElementById('edit-q-difficulty').value = q.difficulty;
+            document.getElementById('edit-q-opt-A').value = q.options[0] || "";
+            document.getElementById('edit-q-opt-B').value = q.options[1] || "";
+            document.getElementById('edit-q-opt-C').value = q.options[2] || "";
+            document.getElementById('edit-q-opt-D').value = q.options[3] || "";
+            document.getElementById('edit-q-answer').value = q.answer;
+            document.getElementById('edit-q-explanation').value = q.explanation;
+
+            openQuestionModal(true);
+        }
+
+        function saveQuestion(e) {
+            e.preventDefault();
+            const idVal = document.getElementById('edit-q-id').value;
+            const content = document.getElementById('edit-q-content').value;
+            const image = document.getElementById('edit-q-image').value || null;
+            const type = document.getElementById('edit-q-type').value;
+            const difficulty = document.getElementById('edit-q-difficulty').value;
+            const optA = document.getElementById('edit-q-opt-A').value;
+            const optB = document.getElementById('edit-q-opt-B').value;
+            const optC = document.getElementById('edit-q-opt-C').value;
+            const optD = document.getElementById('edit-q-opt-D').value;
+            const answer = document.getElementById('edit-q-answer').value;
+            const explanation = document.getElementById('edit-q-explanation').value;
+
+            const opts = [optA, optB];
+            if (optC) opts.push(optC);
+            if (optD) opts.push(optD);
+
+            if (idVal) {
+                const idx = questions.findIndex(q => q.id == idVal);
+                if (idx !== -1) {
+                    questions[idx] = { id: parseInt(idVal), type, content, image, options: opts, answer, difficulty, explanation };
+                }
+            } else {
+                const newId = questions.length ? Math.max(...questions.map(q => q.id)) + 1 : 1;
+                questions.push({ id: newId, type, content, image, options: opts, answer, difficulty, explanation });
+            }
+
+            closeQuestionModal();
+            renderTeacherQuestions();
+            alert("Soal berhasil disimpan!");
+        }
+
+        function deleteQuestion(qId) {
+            if (confirm("Apakah Anda yakin ingin menghapus soal ini?")) {
+                questions = questions.filter(q => q.id !== qId);
+                renderTeacherQuestions();
+            }
+        }
+    </script>
+</body>
+</html>
